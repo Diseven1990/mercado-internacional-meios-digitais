@@ -20,9 +20,18 @@ const form = document.querySelector('#application');
 const submit = document.querySelector('#signup-button');
 const info = document.querySelector('#send-info');
 const result = document.querySelector('#send-result');
+const googleForm = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(contacts.endpoint);
 let direct = false;
 
 async function chooseDelivery() {
+  if (googleForm) {
+    form.action = contacts.endpoint;
+    form.method = 'post';
+    info.textContent = 'Receberá por email a confirmação do seu pedido de pré-inscrição.';
+    submit.textContent = 'Enviar pré-inscrição';
+    submit.disabled = false;
+    return;
+  }
   if (contacts.endpoint && location.protocol.startsWith('http')) {
     try {
       const response = await fetch(contacts.endpoint, { cache: 'no-store', signal: AbortSignal.timeout(3500) });
@@ -37,10 +46,11 @@ async function chooseDelivery() {
 chooseDelivery();
 
 form.addEventListener('submit', async event => {
-  event.preventDefault();
   const nameInput = document.querySelector('#app-name');
   const name = nameInput.value.trim();
-  if (!name) { nameInput.focus(); return; }
+  if (!name) { event.preventDefault(); nameInput.focus(); return; }
+  if (googleForm) return;
+  event.preventDefault();
   const email = document.querySelector('#app-email').value.trim();
   const subject = 'Pré-inscrição · Mercado Internacional e os Meios Digitais';
   if (!direct) {
