@@ -157,3 +157,21 @@ const portrait = document.querySelector('.hero-portrait');
 if (portrait && CSS.supports('animation-timeline: view()')) {
   portrait.classList.add('scroll-portrait');
 }
+
+function origemDaVisita() {
+  const tags = ['facebook', 'whatsapp', 'instagram', 'linkedin', 'qr', 'email', 'google'];
+  const tag = new URLSearchParams(location.search).get('utm_source')?.toLowerCase();
+  if (tags.includes(tag)) return tag;
+  if (!document.referrer) return 'desconhecida';
+  const host = new URL(document.referrer).hostname;
+  const canais = {'facebook.com':'facebook', 'fb.com':'facebook', 'instagram.com':'instagram',
+    'linkedin.com':'linkedin', 'whatsapp.com':'whatsapp', 'google.com':'google', 'google.pt':'google'};
+  for (const [dominio, canal] of Object.entries(canais)) {
+    if (host === dominio || host.endsWith('.' + dominio)) return canal;
+  }
+  return host === location.hostname ? 'interna' : 'outro';
+}
+if (googleForm && location.origin === 'https://diseven1990.github.io') {
+  fetch(contacts.endpoint, {method:'POST', mode:'no-cors', credentials:'omit', referrerPolicy:'no-referrer',
+    keepalive:true, body:new URLSearchParams({evento:'visita', origem:origemDaVisita()})}).catch(() => {});
+}
