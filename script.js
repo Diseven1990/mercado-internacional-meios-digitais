@@ -52,10 +52,11 @@ form.addEventListener('submit', async event => {
   if (googleForm) return;
   event.preventDefault();
   const email = document.querySelector('#app-email').value.trim();
+  const phone = document.querySelector('#app-phone')?.value.trim() || '';
   const subject = 'Pré-inscrição · Mercado Internacional e os Meios Digitais';
   if (!direct) {
     const body = ['Olá,', '', 'Pretendo pré-inscrever-me no percurso Mercado Internacional e os Meios Digitais.',
-      'Nome: ' + name, 'Email de contacto: ' + email].join('\r\n');
+      'Nome: ' + name, 'Email de contacto: ' + email, ...(phone ? ['Telefone: ' + phone] : [])].join('\r\n');
     location.href = 'mailto:' + contacts.email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
     result.textContent = 'Conclua o envio na sua aplicação de email. Se esta não abrir, envie o seu nome e contacto para ' + contacts.email + '.';
     return;
@@ -64,7 +65,7 @@ form.addEventListener('submit', async event => {
   result.textContent = 'A enviar…';
   try {
     const response = await fetch(contacts.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email }) });
+      body: JSON.stringify({ name, email, phone }) });
     if (!response.ok || (await response.json()).accepted !== true) throw new Error('delivery');
     result.textContent = 'O serviço de email aceitou o pedido. A candidatura fica sujeita a validação.';
     form.reset();
